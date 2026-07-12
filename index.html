@@ -11,9 +11,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-<!-- ============ PDF.JS — renders resume PDFs onto in-page canvases ============ -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-
 <style>
   /* ============ GLOBAL RESETS + THEME TOKENS ============
      Swap the accent in one place: change --accent below. Every surface,
@@ -231,11 +228,7 @@
   .viewer-actions a { color: var(--accent); }
   .viewer-actions button { color: var(--text); }
   .viewer-actions a:hover, .viewer-actions button:hover { background: var(--surface); }
-  #pdf-stack {
-    flex: 1; overflow-y: auto; overscroll-behavior: contain; background: #26242e;
-    display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 18px;
-  }
-  #pdf-status { font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #8f8a9e; padding: 30px 0; }
+  #pdf-frame { flex: 1; width: 100%; border: none; background: #26242e; }
 
   @media (max-width: 560px) {
     .exp-item { grid-template-columns: 1fr; gap: 8px; }
@@ -258,7 +251,7 @@
         <button id="viewer-close" type="button">✕ close</button>
       </div>
     </div>
-    <div id="pdf-stack"><span id="pdf-status">loading pages…</span></div>
+    <iframe id="pdf-frame" title="resume" src="about:blank"></iframe>
   </div>
 </div>
 

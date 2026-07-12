@@ -2,7 +2,7 @@
    Sachan Rai — portfolio interactions
    Ported from the original Claude Design component to vanilla JS:
    custom circle cursor, scroll-reveal header, and an in-page
-   PDF.js resume viewer (no iframe, no new tab).
+   resume viewer (native <iframe> PDF rendering — no dependencies).
    ============================================================ */
 (() => {
   'use strict';
@@ -80,86 +80,21 @@
   });
   document.addEventListener('click', () => setMenu(false));
 
-  /* ---- IN-PAGE PDF VIEWER ----------------------------------------- */
+  /* ---- IN-PAGE RESUME VIEWER -------------------------------------
+     Native browser PDF rendering inside a styled modal via <iframe>.
+     No external library — works on any static host. */
   const backdrop = document.getElementById('viewer-backdrop');
   const panel = backdrop.querySelector('.viewer-panel');
-  const stack = document.getElementById('pdf-stack');
+  const frame = document.getElementById('pdf-frame');
   const titleEl = document.getElementById('viewer-title');
   const downloadEl = document.getElementById('viewer-download');
   const closeBtn = document.getElementById('viewer-close');
-
-  let renderToken = 0;
 
   const lockScroll = (on) => {
     const v = on ? 'hidden' : '';
     document.documentElement.style.overflow = v;
     document.body.style.overflow = v;
   };
-
-  const closeViewer = () => {
-    renderToken++;
-    lockScroll(false);
-    backdrop.classList.remove('open');
-    stack.innerHTML = '<span id="pdf-status">loading pages…</span>';
-  };
-
-  async function renderPdf(kind) {
-    const meta = RESUMES[kind];
-    if (!meta) return;
-    const token = ++renderToken;
-    try {
-      // wait for pdf.js (usually instant)
-      for (let i = 0; i < 100 && !window.pdfjsLib; i++) await new Promise(r => setTimeout(r, 50));
-      const pdfjs = window.pdfjsLib;
-      if (!pdfjs) throw new Error('pdf.js failed to load');
-      pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-
-      const doc = await pdfjs.getDocument(meta.path).promise;
-      if (token !== renderToken) return;
-
-      stack.innerHTML = '';
-      const width = Math.min(stack.clientWidth - 36, 860);
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-
-      for (let n = 1; n <= doc.numPages; n++) {
-        const page = await doc.getPage(n);
-        if (token !== renderToken) return;
-        const base = page.getViewport({ scale: 1 });
-        const scale = width / base.width;
-
-        const wrap = document.createElement('div');
-        wrap.style.cssText = 'position:relative; flex:0 0 auto; width:' + width + 'px; border-radius:6px; box-shadow:0 4px 18px rgba(0,0,0,0.4); overflow:hidden;';
-
-        const canvas = document.createElement('canvas');
-        const vp = page.getViewport({ scale: scale * dpr });
-        canvas.width = vp.width; canvas.height = vp.height;
-        canvas.style.cssText = 'width:' + width + 'px; display:block;';
-        wrap.appendChild(canvas);
-        stack.appendChild(wrap);
-        await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
-
-        // recreate the PDF's real hyperlinks as clickable <a>s over the page
-        try {
-          const annotations = await page.getAnnotations();
-          const links = annotations.filter(a => a.subtype === 'Link' && a.url && a.rect);
-          const layerVp = page.getViewport({ scale });
-          links.forEach(a => {
-            const [x1, y1, x2, y2] = layerVp.convertToViewportRectangle(a.rect);
-            const left = Math.min(x1, x2), top = Math.min(y1, y2);
-            const el = document.createElement('a');
-            el.href = a.url; el.target = '_blank'; el.rel = 'noopener'; el.title = a.url;
-            el.style.cssText = 'position:absolute; left:' + left + 'px; top:' + top + 'px; width:'
-              + Math.abs(x2 - x1) + 'px; height:' + Math.abs(y2 - y1) + 'px; z-index:2; cursor:pointer;';
-            wrap.appendChild(el);
-          });
-        } catch (e) { /* no annotations — page stays view-only */ }
-      }
-    } catch (err) {
-      if (token === renderToken) {
-        stack.innerHTML = '<span style="font-family:monospace;font-size:13px;color:#c98a8a;padding:30px 0;">could not load PDF — use download instead</span>';
-      }
-    }
-  }
 
   const openViewer = (kind) => {
     const meta = RESUMES[kind];
@@ -168,9 +103,16 @@
     titleEl.textContent = meta.title;
     downloadEl.href = meta.path;
     downloadEl.setAttribute('download', meta.file);
+    // #view=FitH fits the page to the viewer width in the native viewer
+    frame.src = meta.path + '#view=FitH';
     lockScroll(true);
     backdrop.classList.add('open');
-    renderPdf(kind);
+  };
+
+  const closeViewer = () => {
+    lockScroll(false);
+    backdrop.classList.remove('open');
+    frame.src = 'about:blank'; // stop rendering / free memory
   };
 
   menu.querySelectorAll('button[data-resume]').forEach(btn => {

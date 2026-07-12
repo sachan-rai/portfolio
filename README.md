@@ -9,7 +9,7 @@ Imported from a [Claude Design](https://claude.ai/design) concept and implemente
 - **Accent-derived theming** — every surface, border, and chip is derived from a single `--accent` token via CSS `color-mix`, so re-tinting the whole page is a one-line change.
 - **Custom circle cursor** — a ring that lerp-follows the pointer and grows over interactive elements (fine-pointer devices only).
 - **Scroll-reveal header** — the sticky nav slides in once the hero name scrolls out of view.
-- **In-page resume viewer** — Hardware / Software resumes render to canvas via [PDF.js](https://mozilla.github.io/pdf.js/), with the PDF's real hyperlinks recreated as clickable overlays and a download button. No iframe, no new tab.
+- **In-page resume viewer** — Hardware / Software resumes open in a styled modal, rendered natively by the browser's built-in PDF viewer (`<iframe>`), with a download button. No external libraries.
 
 ## Structure
 
@@ -21,7 +21,7 @@ assets/      resume PDFs
 
 ## Running locally
 
-It's fully static, but the PDF viewer uses `fetch`, so serve it over HTTP rather than opening the file directly:
+It's fully static. Serving over HTTP (rather than opening the file directly) is recommended so the resume PDFs load reliably:
 
 ```bash
 python -m http.server 8000
