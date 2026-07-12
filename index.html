@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sachan Rai — Computer Engineering</title>
+<meta name="description" content="Sachan Rai — Computer Engineering student at the University of Waterloo, building across the stack from STM32 firmware and custom PCBs to full-stack, AI-driven web services.">
+
+<!-- ============ FONTS ============ -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<!-- ============ PDF.JS — renders resume PDFs onto in-page canvases ============ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+<style>
+  /* ============ GLOBAL RESETS + THEME TOKENS ============
+     Swap the accent in one place: change --accent below. Every surface,
+     border, chip and muted tone is DERIVED from --accent via color-mix,
+     so changing the accent re-tints the whole page. */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; scroll-padding-top: 84px; }
+  body { -webkit-font-smoothing: antialiased; background: var(--bg); }
+  ::selection { background: var(--accent); color: #fff; }
+
+  /* THEME: Ink — near-black × violet */
+  :root {
+    --accent:    #a78bfa;
+    --text:      #efecf5;
+    --shadow:    0 1px 2px rgba(0,0,0,0.4);
+    --bg:        color-mix(in srgb, var(--accent) 4%, #100e18);
+    --surface:   color-mix(in srgb, var(--accent) 7%, #161320);
+    --surface-2: color-mix(in srgb, var(--accent) 11%, #1d1929);
+    --muted:     color-mix(in srgb, var(--accent) 14%, #a09cb0);
+    --border:    color-mix(in srgb, var(--accent) 20%, rgba(240,235,255,0.10));
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  body {
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Sans', system-ui, sans-serif;
+    font-weight: 500;
+    line-height: 1.65;
+  }
+
+  /* custom circle cursor active: hide the native cursor EVERYWHERE,
+     including links/buttons (their default is cursor:pointer) */
+  html.custom-cursor, html.custom-cursor * { cursor: none !important; }
+
+  /* ---- custom cursor ---- */
+  #cursor-ring {
+    position: fixed; left: 0; top: 0; z-index: 200;
+    width: 34px; height: 34px; margin: -17px 0 0 -17px;
+    border: 2.5px solid var(--accent); border-radius: 50%;
+    pointer-events: none; opacity: 0;
+    transition: width .18s ease, height .18s ease, margin .18s ease, opacity .25s ease;
+  }
+  #cursor-dot {
+    position: fixed; left: 0; top: 0; z-index: 200;
+    width: 5px; height: 5px; margin: -2.5px 0 0 -2.5px;
+    background: var(--accent); border-radius: 50%;
+    pointer-events: none; opacity: 0;
+    transition: opacity .25s ease;
+  }
+
+  /* ---- sticky header ---- */
+  header {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+    transform: translateY(-105%);
+    transition: transform .35s cubic-bezier(.3,0,.2,1);
+    backdrop-filter: saturate(140%) blur(10px);
+    background: color-mix(in srgb, var(--bg) 82%, transparent);
+    border-bottom: 1px solid var(--border);
+  }
+  header.revealed { transform: translateY(0); }
+  nav {
+    max-width: 1100px; margin: 0 auto; padding: 14px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; flex-wrap: wrap;
+  }
+  .brand { font-weight: 700; letter-spacing: -0.02em; font-size: 16px; }
+  .navlinks { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+  .navlinks a {
+    font-family: 'IBM Plex Mono', monospace; font-size: 13px;
+    color: var(--muted); padding: 6px 10px; border-radius: 6px;
+    transition: color .15s ease, background .15s ease;
+  }
+  .navlinks a:hover { color: var(--text); background: var(--surface-2); }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+  /* ---- section headings ---- */
+  .section-label {
+    font-family: 'IBM Plex Mono', monospace; font-size: 13px;
+    color: var(--accent); text-transform: uppercase; letter-spacing: 0.08em;
+  }
+
+  /* ---- hero ---- */
+  .hero { padding: 96px 0 72px; border-bottom: 1px solid var(--border); }
+  .hero .eyebrow { font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: var(--accent); margin-bottom: 18px; }
+  .hero h1 { font-size: clamp(40px,7vw,72px); line-height: 1.04; letter-spacing: -0.03em; font-weight: 700; margin-bottom: 20px; }
+  .hero .lede { font-size: clamp(18px,2.4vw,22px); color: var(--muted); max-width: 620px; margin-bottom: 34px; }
+  .cta-row { display: flex; flex-wrap: wrap; gap: 12px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 11px 18px; border-radius: 9px; font-size: 14px; font-weight: 500;
+    font-family: inherit; cursor: pointer; transition: background .15s ease, filter .15s ease;
+  }
+  .btn-primary { background: var(--accent); color: #fff; border: 1px solid var(--accent); }
+  .btn-primary:hover { filter: brightness(1.08); }
+  .btn-ghost { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+  .btn-ghost:hover { background: var(--surface-2); }
+
+  /* ---- resume dropdown ---- */
+  .resume-wrap { position: relative; display: flex; }
+  .resume-menu {
+    position: absolute; top: calc(100% + 6px); left: 0; min-width: 180px; z-index: 60;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 6px; display: none; flex-direction: column; gap: 2px;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+  }
+  .resume-menu.open { display: flex; }
+  .resume-menu button {
+    display: flex; justify-content: space-between; gap: 12px; padding: 9px 12px;
+    border-radius: 7px; font-size: 14px; font-weight: 500; font-family: inherit;
+    text-align: left; background: transparent; color: var(--text); border: none; cursor: pointer;
+  }
+  .resume-menu button:hover { background: var(--surface-2); color: var(--accent); }
+
+  /* ---- about ---- */
+  #about { padding: 72px 0; border-bottom: 1px solid var(--border); }
+  #about .section-label { margin-bottom: 24px; display: block; }
+  #about p { font-size: clamp(18px,2.2vw,24px); line-height: 1.5; letter-spacing: -0.01em; max-width: 760px; text-wrap: pretty; }
+
+  /* ---- experience ---- */
+  #experience { padding: 72px 0; border-bottom: 1px solid var(--border); }
+  #experience .section-label { margin-bottom: 40px; display: block; }
+  .exp-list { display: flex; flex-direction: column; gap: 8px; }
+  .exp-item {
+    display: grid; grid-template-columns: 160px 1fr; gap: 24px;
+    padding: 24px 0; border-top: 1px solid var(--border);
+  }
+  .exp-dates { font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: var(--muted); padding-top: 3px; }
+  .exp-item h3 { font-size: 19px; font-weight: 600; letter-spacing: -0.01em; }
+  .exp-meta { font-size: 14px; color: var(--accent); margin-bottom: 14px; }
+  .exp-item ul { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+  .exp-item li { position: relative; padding-left: 18px; font-size: 15.5px; color: var(--muted); text-wrap: pretty; }
+  .exp-item li::before { content: ''; position: absolute; left: 0; top: 9px; width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
+
+  /* ---- projects ---- */
+  #projects { padding: 72px 0; border-bottom: 1px solid var(--border); }
+  #projects .section-label { margin-bottom: 32px; display: block; }
+  .proj-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); gap: 20px; }
+  .proj-card {
+    display: flex; flex-direction: column; padding: 26px;
+    border: 1px solid var(--border); border-radius: 16px; background: var(--surface);
+    transition: border-color .2s ease, transform .2s ease;
+  }
+  .proj-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .proj-card h3 { font-size: 17px; font-weight: 600; letter-spacing: -0.01em; margin-bottom: 8px; }
+  .proj-card .blurb { font-size: 15px; line-height: 1.65; color: var(--muted); flex: 1; margin-bottom: 16px; text-wrap: pretty; }
+  .tech-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+  .tech-chip {
+    font-family: 'IBM Plex Mono', monospace; font-size: 11.5px;
+    color: color-mix(in srgb, var(--accent) 45%, var(--muted));
+    padding: 3px 8px; border-radius: 6px;
+    background: color-mix(in srgb, var(--accent) 10%, var(--surface-2));
+  }
+  .proj-links { display: flex; gap: 14px; font-family: 'IBM Plex Mono', monospace; font-size: 13px; }
+  .proj-links a { color: var(--text); transition: color .15s ease; }
+  .proj-links a:hover { color: var(--accent); }
+
+  /* ---- skills ---- */
+  #skills { padding: 72px 0; border-bottom: 1px solid var(--border); }
+  #skills .section-label { margin-bottom: 32px; display: block; }
+  .skills-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px,1fr)); gap: 28px 40px; }
+  .skills-grid h3 { font-size: 14px; font-weight: 600; margin-bottom: 12px; }
+  .skill-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .skill-chip {
+    font-family: 'IBM Plex Mono', monospace; font-size: 12.5px;
+    color: color-mix(in srgb, var(--accent) 35%, var(--muted));
+    padding: 4px 9px; border-radius: 6px;
+    border: 1px solid color-mix(in srgb, var(--accent) 24%, var(--border));
+  }
+
+  /* ---- contact ---- */
+  #contact { padding: 80px 0 100px; }
+  #contact .section-label { margin-bottom: 20px; display: block; }
+  #contact .big { font-size: clamp(24px,4vw,40px); font-weight: 700; letter-spacing: -0.02em; margin-bottom: 28px; max-width: 600px; text-wrap: pretty; }
+  .contact-links { display: flex; flex-direction: column; gap: 10px; font-family: 'IBM Plex Mono', monospace; font-size: 15px; }
+  .contact-links a { display: inline-flex; gap: 10px; color: var(--text); width: fit-content; transition: color .15s ease; }
+  .contact-links a:hover { color: var(--accent); }
+  .contact-links a span { color: var(--muted); }
+
+  /* ---- footer ---- */
+  footer { border-top: 1px solid var(--border); }
+  .footer-inner {
+    max-width: 1100px; margin: 0 auto; padding: 24px;
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--muted);
+  }
+
+  /* ---- resume viewer overlay ---- */
+  #viewer-backdrop {
+    position: fixed; inset: 0; z-index: 100;
+    background: rgba(10,8,16,0.82); backdrop-filter: blur(6px);
+    display: none; align-items: center; justify-content: center; padding: 26px;
+  }
+  #viewer-backdrop.open { display: flex; }
+  .viewer-panel {
+    position: relative; width: min(920px,94vw); height: min(1200px,90vh);
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+    overflow: hidden; display: flex; flex-direction: column;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+  }
+  .viewer-bar {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 10px 16px; border-bottom: 1px solid var(--border); background: var(--surface-2);
+  }
+  .viewer-title { font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: var(--muted); }
+  .viewer-actions { display: flex; align-items: center; gap: 10px; }
+  .viewer-actions a, .viewer-actions button {
+    font-family: 'IBM Plex Mono', monospace; font-size: 13px;
+    padding: 6px 10px; border: 1px solid var(--border); border-radius: 7px;
+    background: transparent; cursor: pointer;
+  }
+  .viewer-actions a { color: var(--accent); }
+  .viewer-actions button { color: var(--text); }
+  .viewer-actions a:hover, .viewer-actions button:hover { background: var(--surface); }
+  #pdf-stack {
+    flex: 1; overflow-y: auto; overscroll-behavior: contain; background: #26242e;
+    display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 18px;
+  }
+  #pdf-status { font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #8f8a9e; padding: 30px 0; }
+
+  @media (max-width: 560px) {
+    .exp-item { grid-template-columns: 1fr; gap: 8px; }
+  }
+</style>
+</head>
+<body id="top">
+
+<!-- custom cursor -->
+<div id="cursor-ring"></div>
+<div id="cursor-dot"></div>
+
+<!-- resume viewer overlay -->
+<div id="viewer-backdrop">
+  <div class="viewer-panel">
+    <div class="viewer-bar">
+      <span class="viewer-title" id="viewer-title">resume</span>
+      <div class="viewer-actions">
+        <a id="viewer-download" href="#" download>download ↓</a>
+        <button id="viewer-close" type="button">✕ close</button>
+      </div>
+    </div>
+    <div id="pdf-stack"><span id="pdf-status">loading pages…</span></div>
+  </div>
+</div>
+
+<!-- sticky header -->
+<header id="site-header">
+  <nav>
+    <a href="#top" class="brand">Sachan Rai</a>
+    <div class="navlinks">
+      <a href="#about">about</a>
+      <a href="#experience">experience</a>
+      <a href="#projects">projects</a>
+      <a href="#skills">skills</a>
+      <a href="#contact">contact</a>
+    </div>
+  </nav>
+</header>
+
+<main>
+  <!-- HERO -->
+  <section class="hero">
+    <p class="eyebrow">// computer engineering · uwaterloo</p>
+    <h1 id="hero-name">Sachan Rai</h1>
+    <p class="lede">Computer engineering student building across the stack — from STM32 firmware and custom PCBs to full-stack, AI-driven web services.</p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="https://github.com/sachan-rai" target="_blank" rel="noopener">GitHub</a>
+      <a class="btn btn-ghost" href="https://linkedin.com/in/sachanrai" target="_blank" rel="noopener">LinkedIn</a>
+      <a class="btn btn-ghost" href="mailto:s43rai@uwaterloo.ca">Email</a>
+      <div class="resume-wrap">
+        <button class="btn btn-ghost" id="resume-toggle" type="button">Resume <span id="resume-caret">▾</span></button>
+        <div class="resume-menu" id="resume-menu">
+          <button type="button" data-resume="hardware"><span>Hardware</span><span>↗</span></button>
+          <button type="button" data-resume="software"><span>Software</span><span>↗</span></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <span class="section-label">About</span>
+    <p>I'm a Computer Engineering student at the University of Waterloo. Most of what I build ends up touching both hardware and software. I've written firmware for STM32 and ESP32 boards, designed my own PCBs in KiCad, and put full-stack and AI services into production. The stuff I enjoy most tends to sit right at that boundary, where the code has to actually deal with the physical device it's running on.</p>
+  </section>
+
+  <!-- EXPERIENCE -->
+  <section id="experience">
+    <span class="section-label">Experience</span>
+    <div class="exp-list">
+      <article class="exp-item">
+        <div class="exp-dates">Jan 2026 — Apr 2026</div>
+        <div>
+          <h3>Software Engineering Intern</h3>
+          <p class="exp-meta">Narrative Projects · Toronto, ON</p>
+          <ul>
+            <li>Designed an inbound email parsing webhook, routing mail via an MX record and processing 100+ daily messages, recovering threads via header and subject matching.</li>
+            <li>Replaced an in-app messaging system with an email-driven Comms Hub in Node.js + TypeScript on Cloud Run, AI-tagging emails to products at 90% accuracy across 1000+ products.</li>
+            <li>Self-hosted the OpenClaw AI framework on a GCP Compute Engine VM to power email-driven order intake and daily inbox digests, scoped under an IAM-controlled service account.</li>
+          </ul>
+        </div>
+      </article>
+      <article class="exp-item">
+        <div class="exp-dates">May 2025 — Aug 2025</div>
+        <div>
+          <h3>System Operations Intern</h3>
+          <p class="exp-meta">Canadian Analytical Laboratories · Mississauga, ON</p>
+          <ul>
+            <li>Audited 200+ IT assets across 4 departments via a standardized ITAM tracker, surfacing end-of-life devices and warranty gaps to inform the infrastructure refresh and budget cycle.</li>
+            <li>Configured workstations for lab, regulatory, QA, and admin teams with standardized Windows builds and chromatography systems (Waters Empower, Agilent OpenLab) under GMP/Health Canada standards.</li>
+            <li>Coordinated rollouts with scientists, IT leads, and regulatory staff, scheduling cutovers around active assay runs to deliver upgrades with zero downtime.</li>
+          </ul>
+        </div>
+      </article>
+      <article class="exp-item">
+        <div class="exp-dates">Sep 2024 — Apr 2025</div>
+        <div>
+          <h3>Controls Engineer</h3>
+          <p class="exp-meta">Waterloo Rocketry · Waterloo, ON</p>
+          <ul>
+            <li>Engineered a mechanical airbrake system in SOLIDWORKS with symmetric deployable drag panels within the airframe and mass budget, for a projected 20% aerodynamic efficiency gain.</li>
+            <li>Designed and tested a custom PCB airbrake control board in KiCad, integrating sensor inputs and filtering noisy telemetry in real time to deliver deployment commands.</li>
+            <li>Partnered with avionics and recovery to integrate the airbrake PCB with the flight computer's data and power buses, resolving cross-subsystem issues to lock in a flight-ready revision.</li>
+          </ul>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section id="projects">
+    <span class="section-label">Projects</span>
+    <div class="proj-grid">
+      <article class="proj-card">
+        <h3>Apex — AI Racing Telemetry Coach</h3>
+        <p class="blurb">Real-time F1 25 telemetry coach that parses binary UDP at 60Hz and pinpoints where a lap loses time against a reference, with track-agnostic corner detection.</p>
+        <div class="tech-row"><span class="tech-chip">Python</span><span class="tech-chip">FastAPI</span><span class="tech-chip">React</span><span class="tech-chip">PostgreSQL</span><span class="tech-chip">NumPy</span><span class="tech-chip">Anthropic API</span></div>
+        <div class="proj-links"><a href="https://github.com/sachan-rai" target="_blank" rel="noopener">repo →</a></div>
+      </article>
+      <article class="proj-card">
+        <h3>Atlas AI — PCB Defect Detection</h3>
+        <p class="blurb">A PyTorch CNN classifying six PCB defect categories at 90%+ accuracy, with an LLM service that auto-generates PDF inspection reports under 120ms per image.</p>
+        <div class="tech-row"><span class="tech-chip">PyTorch</span><span class="tech-chip">React</span><span class="tech-chip">FastAPI</span><span class="tech-chip">PostgreSQL</span><span class="tech-chip">Redis</span><span class="tech-chip">Docker</span><span class="tech-chip">AWS</span></div>
+        <div class="proj-links"><a href="https://github.com/sachan-rai" target="_blank" rel="noopener">repo →</a></div>
+      </article>
+      <article class="proj-card">
+        <h3>LifeSync — AI Wellness Platform</h3>
+        <p class="blurb">Cross-platform health app with GPT-4 RAG over 500+ nutrition and fitness documents for context-aware meal planning and exercise coaching.</p>
+        <div class="tech-row"><span class="tech-chip">React Native</span><span class="tech-chip">Node.js</span><span class="tech-chip">Python</span><span class="tech-chip">FastAPI</span><span class="tech-chip">PostgreSQL</span><span class="tech-chip">AWS</span><span class="tech-chip">Docker</span></div>
+        <div class="proj-links"><a href="https://github.com/sachan-rai" target="_blank" rel="noopener">repo →</a></div>
+      </article>
+      <article class="proj-card">
+        <h3>Embedded Irrigation Controller</h3>
+        <p class="blurb">STM32 firmware running a 24-hour autonomous 3-zone irrigation cycle with a UART setup terminal, PWM motor control, and interrupt-driven RPM measurement.</p>
+        <div class="tech-row"><span class="tech-chip">C</span><span class="tech-chip">STM32</span><span class="tech-chip">PWM</span><span class="tech-chip">UART</span><span class="tech-chip">Proteus</span></div>
+        <div class="proj-links"><a href="https://github.com/sachan-rai" target="_blank" rel="noopener">repo →</a></div>
+      </article>
+      <article class="proj-card">
+        <h3>Dorm Defense Alarm System</h3>
+        <p class="blurb">Three-unit STM32 alarm fusing PIR sensors, accelerometers, and Bluetooth modules for ~90% motion detection across a 20m range with sub-100ms response.</p>
+        <div class="tech-row"><span class="tech-chip">C/C++</span><span class="tech-chip">STM32</span><span class="tech-chip">I2C</span><span class="tech-chip">KiCad</span></div>
+        <div class="proj-links"><a href="https://github.com/sachan-rai" target="_blank" rel="noopener">repo →</a></div>
+      </article>
+      <article class="proj-card">
+        <h3>Automotive CAN Bus Simulator</h3>
+        <p class="blurb">ESP32-based CAN simulator transmitting virtual ECU frames for speed, RPM, and faults, with a python-can tool for real-time monitoring and decoding.</p>
+        <div class="tech-row"><span class="tech-chip">C/C++</span><span class="tech-chip">Python</span><span class="tech-chip">ESP32</span><span class="tech-chip">CAN</span><span class="tech-chip">Arduino</span></div>
+        <div class="proj-links"><a href="https://github.com/sachan-rai" target="_blank" rel="noopener">repo →</a></div>
+      </article>
+    </div>
+  </section>
+
+  <!-- SKILLS -->
+  <section id="skills">
+    <span class="section-label">Skills</span>
+    <div class="skills-grid">
+      <div>
+        <h3>Languages</h3>
+        <div class="skill-chips"><span class="skill-chip">C</span><span class="skill-chip">C++</span><span class="skill-chip">Python</span><span class="skill-chip">Java</span><span class="skill-chip">C#</span><span class="skill-chip">JavaScript</span><span class="skill-chip">TypeScript</span><span class="skill-chip">HTML</span><span class="skill-chip">CSS</span><span class="skill-chip">Bash</span><span class="skill-chip">MATLAB</span><span class="skill-chip">VHDL</span><span class="skill-chip">Verilog</span><span class="skill-chip">Assembly</span></div>
+      </div>
+      <div>
+        <h3>Frameworks &amp; Libraries</h3>
+        <div class="skill-chips"><span class="skill-chip">PyTorch</span><span class="skill-chip">TensorFlow</span><span class="skill-chip">React</span><span class="skill-chip">React Native</span><span class="skill-chip">Node.js</span><span class="skill-chip">FastAPI</span><span class="skill-chip">MongoDB</span><span class="skill-chip">PostgreSQL</span><span class="skill-chip">Redis</span></div>
+      </div>
+      <div>
+        <h3>Hardware &amp; Embedded</h3>
+        <div class="skill-chips"><span class="skill-chip">STM32</span><span class="skill-chip">ESP32</span><span class="skill-chip">Arduino</span><span class="skill-chip">FreeRTOS</span><span class="skill-chip">KiCad</span><span class="skill-chip">SolidWorks</span><span class="skill-chip">Fusion360</span><span class="skill-chip">Quartus Prime</span></div>
+      </div>
+      <div>
+        <h3>Protocols &amp; Test</h3>
+        <div class="skill-chips"><span class="skill-chip">CAN</span><span class="skill-chip">I2C</span><span class="skill-chip">SPI</span><span class="skill-chip">UART</span><span class="skill-chip">PWM</span><span class="skill-chip">Oscilloscope</span><span class="skill-chip">Logic Analyzer</span><span class="skill-chip">Multimeter</span><span class="skill-chip">Soldering</span></div>
+      </div>
+      <div>
+        <h3>Cloud &amp; DevOps</h3>
+        <div class="skill-chips"><span class="skill-chip">AWS (ECS, S3, RDS)</span><span class="skill-chip">GCP (Cloud Run, Compute Engine)</span><span class="skill-chip">Docker</span><span class="skill-chip">Kubernetes</span><span class="skill-chip">SendGrid</span></div>
+      </div>
+      <div>
+        <h3>Developer Tools</h3>
+        <div class="skill-chips"><span class="skill-chip">Git</span><span class="skill-chip">Linux</span><span class="skill-chip">Jira</span><span class="skill-chip">Agile</span><span class="skill-chip">STM32 CubeIDE</span><span class="skill-chip">Proteus</span><span class="skill-chip">PlatformIO</span><span class="skill-chip">VS Code</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <span class="section-label">Contact</span>
+    <p class="big">Reach out!</p>
+    <div class="contact-links">
+      <a href="mailto:s43rai@uwaterloo.ca"><span>email</span> s43rai@uwaterloo.ca</a>
+      <a href="https://github.com/sachan-rai" target="_blank" rel="noopener"><span>github</span> github.com/sachan-rai</a>
+      <a href="https://linkedin.com/in/sachanrai" target="_blank" rel="noopener"><span>linkedin</span> linkedin.com/in/sachanrai</a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <span>© 2026 Sachan Rai</span>
+    <span>built as a starting foundation</span>
+  </div>
+</footer>
+
+<script src="./main.js"></script>
+</body>
+</html>
