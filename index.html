@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sachan Rai — Computer Engineering</title>
-<meta name="description" content="Sachan Rai — Computer Engineering student at the University of Waterloo, building across the stack from STM32 firmware and custom PCBs to full-stack, AI-driven web services.">
+<meta name="description" content="Sachan Rai, Computer Engineering student at the University of Waterloo. I write STM32 firmware, design the PCBs it runs on, and build the full-stack AI services around them.">
 
 <!-- Favicon: the SR-2026 chip, inlined from the design's own thumbnail -->
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' fill='%2314120e'/%3E%3Crect x='120' y='140' width='160' height='120' fill='none' stroke='%23ece7da' stroke-width='6'/%3E%3Ctext x='200' y='215' font-family='monospace' font-size='42' font-weight='700' fill='%23e0491f' text-anchor='middle'%3ESR-2026%3C/text%3E%3C/svg%3E">
@@ -36,9 +36,13 @@
   html, body { height: 100%; overflow: hidden; }
   body { background: var(--paper); -webkit-font-smoothing: antialiased; }
   ::selection { background: var(--accent); color: #f2efe6; }
-  a { color: inherit; text-decoration: none; cursor: pointer; }
+  a { color: inherit; text-decoration: none; }
   a:hover { color: var(--accent); }
-  button { cursor: pointer; }
+
+  /* Clickable things keep the crosshair instead of switching to the hand
+     pointer, tinted to the accent. A data-URI cursor can't read a CSS
+     variable, so main.js rebuilds --probe-cursor whenever the theme flips. */
+  a, button, #boot { cursor: var(--probe-cursor, crosshair); }
 
   @keyframes led-pulse { 0%,100% { opacity:1; } 50% { opacity:0.25; } }
   @keyframes boot-line { 0% { opacity:0; transform:translateY(6px); } 100% { opacity:1; transform:translateY(0); } }
@@ -87,7 +91,7 @@
 <div id="root" style="height:100vh; overflow:hidden; background:var(--paper); color:var(--ink); font-family:'Bricolage Grotesque',Georgia,serif; line-height:1.6; display:flex; flex-direction:column; transition:background .5s ease, color .5s ease;">
 
   <!-- ============ BOOT / BRING-UP OVERLAY ============ -->
-  <div id="boot" hidden style="position:fixed; inset:0; z-index:300; background:#12100c; color:#e8e2d2; display:flex; align-items:center; justify-content:center; cursor:pointer;">
+  <div id="boot" hidden style="position:fixed; inset:0; z-index:300; background:#12100c; color:#e8e2d2; display:flex; align-items:center; justify-content:center;">
     <div style="font-family:'IBM Plex Mono',monospace; font-size:clamp(11px,1.4vw,13px); line-height:2.1; letter-spacing:0.05em; min-width:min(420px,84vw);">
       <div style="animation:boot-line .01s ease .1s both; color:#8f8877;">SR-2026 BRING-UP SEQUENCE V 2.091812</div>
       <div style="animation:boot-line .01s ease .35s both;">ATP CONNECTION&nbsp;&nbsp;......&nbsp;<span style="color:#5da06a;">OK</span></div>
@@ -156,7 +160,7 @@
             <h1 data-pop data-probe="DUT: SACHAN RAI" style="position:relative; z-index:1; font-size:clamp(58px,min(12vw,17vh),190px); line-height:0.92; letter-spacing:-0.035em; font-weight:800; text-transform:uppercase; padding:clamp(24px,4.5vh,52px) 0 10px; font-variation-settings:'opsz' 96;">Sachan<br>Rai</h1>
           </div>
           <div data-pop style="display:flex; gap:40px; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; padding:10px 0 clamp(24px,4vh,44px); border-bottom:1px solid var(--ink);">
-            <p style="flex:1 1 380px; max-width:620px; font-size:clamp(17px,2.2vw,24px); line-height:1.5; text-wrap:pretty;">Dual-domain engineer, building across the stack — from STM32 firmware and custom PCBs to full-stack, AI-driven web services.</p>
+            <p style="flex:1 1 380px; max-width:620px; font-size:clamp(17px,2.2vw,24px); line-height:1.5; text-wrap:pretty;">I write STM32 firmware, design the PCBs it runs on, and build the full-stack AI services around them.</p>
             <div style="flex:0 0 auto; width:250px; margin:8px 0;">
               <div class="pin-row" style="display:flex; justify-content:space-between; padding:0 16px; margin-bottom:-1px;"></div>
               <button id="chip" class="chip" title="click to toggle power" style="width:250px; height:104px; border:2px solid var(--ink); background:var(--paper); position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; color:inherit;">
@@ -190,7 +194,7 @@
           <div data-pop style="flex:0 0 200px;">
             <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:0.1em; color:var(--accent);">1 — GENERAL<br>DESCRIPTION</span>
           </div>
-          <p data-pop style="flex:1 1 420px; max-width:720px; font-size:clamp(21px,3vw,36px); line-height:1.45; letter-spacing:-0.01em; text-wrap:pretty; font-weight:500;">I'm a Computer Engineering student at the University of Waterloo. Most of what I build ends up touching both hardware and software — firmware for STM32 and ESP32 boards, PCBs drawn up in KiCad, and full-stack AI services running in production. <em style="color:var(--accent); font-style:italic;">The problems I really enjoy sit right at that boundary, where the code has to deal with the physical device it's running on.</em></p>
+          <p data-pop style="flex:1 1 420px; max-width:720px; font-size:clamp(21px,3vw,36px); line-height:1.45; letter-spacing:-0.01em; text-wrap:pretty; font-weight:500;">I'm a Computer Engineering student at the University of Waterloo. Most of what I build touches both hardware and software: firmware for STM32 and ESP32 boards, PCBs drawn up in KiCad, and full-stack AI services running in production. <em style="color:var(--accent); font-style:italic;">The problems I enjoy most sit at that boundary, where the code has to account for the physical device it runs on.</em></p>
         </div>
       </div>
     </section>

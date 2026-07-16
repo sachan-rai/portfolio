@@ -77,10 +77,21 @@
   let refreshHud = () => {}; // set by setupHud on fine-pointer devices
 
   /* ---- THEME ------------------------------------------------------ */
+  // The crosshair a clickable element gets. Native `crosshair` can't be
+  // recoloured, so it's redrawn as an SVG cursor in the current accent and
+  // handed to CSS as --probe-cursor. Hotspot sits at the intersection.
+  const probeCursor = (color) =>
+    'url("data:image/svg+xml,' + encodeURIComponent(
+      '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" shape-rendering="crispEdges">'
+      + '<path d="M11.5 0v24M0 11.5h24" stroke="' + color + '" stroke-width="1"/></svg>'
+    ) + '") 12 12, crosshair';
+
   const applyTheme = () => {
     const el = document.documentElement;
     Object.entries(PALETTES[lab ? 'lab' : 'paper']).forEach(([k, v]) => el.style.setProperty(k, v));
-    el.style.setProperty('--accent', lab ? ACCENT_LAB : ACCENT_PAPER);
+    const accent = lab ? ACCENT_LAB : ACCENT_PAPER;
+    el.style.setProperty('--accent', accent);
+    el.style.setProperty('--probe-cursor', probeCursor(accent));
     scopeColors = null; // re-read on next scope frame
   };
 
@@ -464,7 +475,7 @@
             const el = document.createElement('a');
             el.href = a.url; el.target = '_blank'; el.rel = 'noopener'; el.title = a.url;
             el.style.cssText = 'position:absolute; left:' + Math.min(x1, x2) + 'px; top:' + Math.min(y1, y2)
-              + 'px; width:' + Math.abs(x2 - x1) + 'px; height:' + Math.abs(y2 - y1) + 'px; z-index:2; cursor:pointer;';
+              + 'px; width:' + Math.abs(x2 - x1) + 'px; height:' + Math.abs(y2 - y1) + 'px; z-index:2;';
             wrap.appendChild(el);
           });
         } catch (e) { /* no annotations — page stays view-only */ }
